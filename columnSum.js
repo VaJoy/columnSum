@@ -12,7 +12,9 @@
                 //6:"" //第七列的汇总显示“”
             },
             decimal :2,  //小数位，默认精确到2位小数
-            match:!0  //小数位是否用0补全
+            match:!0,  //小数位是否用0补全
+            reg:null,
+            current:!1
         },option);
 
         var $tbody = $(this).find("tbody"),
@@ -26,7 +28,8 @@
         for(var i=0,l=$rows.length,val;i<l;i++){
             for(var j=0,temp= 0,dm=option.decimal,tens =Math.pow(10,dm),$row=$rows.eq(i);j<col_num;j++){
                 if(typeof option.ignore[j]!=="undefined") continue;
-                val = Number($row.children().eq(j).text());
+                val = $row.children().eq(j).text();
+                val = option.reg?Number(val.replace(option.reg,'')):Number(val);
                 temp = (arr[j]||0) + (val||0);  //console.error(temp,typeof temp);
                 temp = Math.round(temp*tens)/tens;
                 arr[j] = temp;  //console.log(arr[j]);
@@ -35,8 +38,8 @@
 
         var lastRow = "<tr>";
         for(var i= 0;i<col_num;i++){
-            if(typeof arr[i]==="number"&&option.match) arr[i] = arr[i].toFixed(option.decimal);
-            lastRow += "<td>" + arr[i] + "</td>"
+            if(typeof arr[i]==="number"&&option.match) arr[i] = Number(arr[i].toFixed(option.decimal));
+            lastRow += "<td>" + (option.current?arr[i].toLocaleString():arr[i]) + "</td>"
         }
         lastRow += "</tr>";
         $(lastRow).appendTo($tbody);
