@@ -11,7 +11,8 @@
                 //2:"-", //第三列的汇总显示“-”
                 //6:"" //第七列的汇总显示“”
             },
-            decimal :2  //小数位，默认精确到2位小数
+            decimal :2,  //小数位，默认精确到2位小数
+            match:!0  //小数位是否用0补全
         },option);
 
         var $tbody = $(this).find("tbody"),
@@ -26,13 +27,15 @@
             for(var j=0,temp= 0,dm=option.decimal,tens =Math.pow(10,dm),$row=$rows.eq(i);j<col_num;j++){
                 if(typeof option.ignore[j]!=="undefined") continue;
                 val = Number($row.children().eq(j).text());
-                temp = (arr[j]||0) + (val||0);
-                arr[j] = Math.round(temp*tens)/tens;
+                temp = (arr[j]||0) + (val||0);  //console.error(temp,typeof temp);
+                temp = Math.round(temp*tens)/tens;
+                arr[j] = temp;  //console.log(arr[j]);
             }
         }
 
         var lastRow = "<tr>";
         for(var i= 0;i<col_num;i++){
+            if(typeof arr[i]==="number"&&option.match) arr[i] = arr[i].toFixed(option.decimal);
             lastRow += "<td>" + arr[i] + "</td>"
         }
         lastRow += "</tr>";
