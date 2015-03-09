@@ -10,7 +10,8 @@
             ignore:{ //key为要忽略的列的索引（从0开始算），val为该列汇总处显示内容
                 //2:"-", //第三列的汇总显示“-”
                 //6:"" //第七列的汇总显示“”
-            }
+            },
+            decimal :2  //小数位，默认精确到2位小数
         },option);
 
         var $tbody = $(this).find("tbody"),
@@ -22,10 +23,11 @@
         }
 
         for(var i=0,l=$rows.length,val;i<l;i++){
-            for(var j=0,$row=$rows.eq(i);j<col_num;j++){
+            for(var j=0,temp= 0,dm=option.decimal,tens =Math.pow(10,dm),$row=$rows.eq(i);j<col_num;j++){
                 if(typeof option.ignore[j]!=="undefined") continue;
                 val = Number($row.children().eq(j).text());
-                arr[j] = (arr[j]||0) + (val||0);
+                temp = (arr[j]||0) + (val||0);
+                arr[j] = Math.round(temp*tens)/tens;
             }
         }
 
