@@ -14,7 +14,7 @@
             decimal :2,  //小数位，默认精确到2位小数
             match:!0,  //小数位是否用0补全
             reg:null,
-            current:!1
+            currency:!0
         },option);
 
         var $tbody = $(this).find("tbody"),
@@ -30,16 +30,37 @@
                 if(typeof option.ignore[j]!=="undefined") continue;
                 val = $row.children().eq(j).text();
                 val = option.reg?Number(val.replace(option.reg,'')):Number(val);
-                temp = (arr[j]||0) + (val||0);  //console.error(temp,typeof temp);
+                temp = (arr[j]||0) + (val||0);
                 temp = Math.round(temp*tens)/tens;
-                arr[j] = temp;  //console.log(arr[j]);
+                arr[j] = temp;
             }
+        }
+
+        function toCurrency(num){
+            num = num.toString();
+            var result = "",
+                len = num.length,
+                init = num.indexOf("."),
+                pn_l = init<0?len:init;
+            for(var i=pn_l;i>=0;i-=3){
+                result = num.slice((i-3)>=0?(i-3):0,i) + (i==pn_l?"":",") + result
+            }
+            if(init>-1){
+                result += ".";
+                if(len-init>4)
+                result += num.slice(init+1,len).replace(/(\d{3})(?=\d+)/g,"$1,");
+                else result += num.slice(init+1,len)
+            }
+            return result
         }
 
         var lastRow = "<tr>";
         for(var i= 0;i<col_num;i++){
-            if(typeof arr[i]==="number"&&option.match) arr[i] = Number(arr[i].toFixed(option.decimal));
-            lastRow += "<td>" + (option.current?arr[i].toLocaleString():arr[i]) + "</td>"
+            if(typeof arr[i]==="number"){
+                arr[i] = (option.decimal&&option.match)?Number(arr[i]).toFixed(option.decimal):arr[i];
+                    arr[i] = option.currency?toCurrency(arr[i]):arr[i];
+            }
+            lastRow += "<td>" + arr[i] + "</td>"
         }
         lastRow += "</tr>";
         $(lastRow).appendTo($tbody);
